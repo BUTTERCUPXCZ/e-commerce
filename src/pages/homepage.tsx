@@ -3,88 +3,32 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart } from "lucide-react"
 import { useCartStore } from "@/stores/cart"
+import { useFeaturedProducts } from "@/hooks/useProducts"
 import type { Product } from "@/types"
 
 export function Homepage() {
   const { addItem } = useCartStore()
-
-  // Mock featured products data
-  const featuredProducts: Product[] = [
-    {
-      id: "1",
-      name: "Wireless Bluetooth Headphones",
-      description: "High-quality wireless headphones with noise cancellation and 30-hour battery life.",
-      price: 79.99,
-      discountPrice: 59.99,
-      images: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop"],
-      category: "Electronics",
-      brand: "AudioTech",
-      rating: 4.5,
-      reviewCount: 128,
-      inStock: true,
-      stockQuantity: 45,
-      sku: "AT-WBH-001",
-      tags: ["wireless", "bluetooth", "noise-canceling"],
-      createdAt: "2024-01-15T00:00:00Z",
-      updatedAt: "2024-01-15T00:00:00Z"
-    },
-    {
-      id: "2", 
-      name: "Smart Watch Series 8",
-      description: "Advanced smartwatch with health monitoring, GPS, and water resistance.",
-      price: 299.99,
-      images: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop"],
-      category: "Electronics",
-      brand: "TechWear",
-      rating: 4.8,
-      reviewCount: 256,
-      inStock: true,
-      stockQuantity: 23,
-      sku: "TW-SW8-001",
-      tags: ["smartwatch", "fitness", "gps"],
-      createdAt: "2024-01-20T00:00:00Z",
-      updatedAt: "2024-01-20T00:00:00Z"
-    },
-    {
-      id: "3",
-      name: "Premium Coffee Maker",
-      description: "Professional-grade coffee maker with programmable brewing and built-in grinder.",
-      price: 149.99,
-      discountPrice: 119.99,
-      images: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop"],
-      category: "Home & Kitchen",
-      brand: "BrewMaster",
-      rating: 4.3,
-      reviewCount: 89,
-      inStock: true,
-      stockQuantity: 12,
-      sku: "BM-PCM-001",
-      tags: ["coffee", "kitchen", "programmable"],
-      createdAt: "2024-01-10T00:00:00Z",
-      updatedAt: "2024-01-10T00:00:00Z"
-    },
-    {
-      id: "4",
-      name: "Ergonomic Office Chair",
-      description: "Comfortable ergonomic chair with lumbar support and adjustable height.",
-      price: 199.99,
-      images: ["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop"],
-      category: "Furniture",
-      brand: "ComfortSeating",
-      rating: 4.6,
-      reviewCount: 67,
-      inStock: true,
-      stockQuantity: 8,
-      sku: "CS-EOC-001",
-      tags: ["ergonomic", "office", "chair"],
-      createdAt: "2024-01-05T00:00:00Z",
-      updatedAt: "2024-01-05T00:00:00Z"
-    }
-  ]
+  const { data: featuredData, isLoading, error } = useFeaturedProducts()
 
   const handleAddToCart = (product: Product) => {
     addItem(product)
   }
+
+  const LoadingCard = () => (
+    <Card className="group hover:shadow-lg transition-shadow">
+      <CardHeader className="p-0">
+        <div className="w-full h-48 bg-muted rounded-t-lg animate-pulse" />
+      </CardHeader>
+      <CardContent className="p-4">
+        <div className="h-6 bg-muted rounded mb-2 animate-pulse" />
+        <div className="h-4 bg-muted rounded w-3/4 mb-2 animate-pulse" />
+        <div className="h-6 bg-muted rounded w-1/2 animate-pulse" />
+      </CardContent>
+      <CardFooter className="p-4 pt-0">
+        <div className="w-full h-9 bg-muted rounded animate-pulse" />
+      </CardFooter>
+    </Card>
+  )
 
   return (
     <div className="space-y-12">
@@ -112,8 +56,23 @@ export function Homepage() {
           <p className="text-muted-foreground">Discover our most popular items</p>
         </div>
 
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-destructive mb-4">Failed to load featured products</p>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
+          {isLoading && 
+            Array.from({ length: 4 }).map((_, index) => (
+              <LoadingCard key={index} />
+            ))
+          }
+
+          {featuredData?.data.map((product) => (
             <Card key={product.id} className="group hover:shadow-lg transition-shadow">
               <CardHeader className="p-0">
                 <div className="relative">
@@ -169,9 +128,10 @@ export function Homepage() {
                   className="w-full" 
                   size="sm"
                   onClick={() => handleAddToCart(product)}
+                  disabled={!product.inStock}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  Add to Cart
+                  {product.inStock ? "Add to Cart" : "Out of Stock"}
                 </Button>
               </CardFooter>
             </Card>
