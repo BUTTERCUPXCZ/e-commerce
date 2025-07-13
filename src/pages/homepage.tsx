@@ -1,49 +1,90 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart } from "lucide-react"
+import { useCartStore } from "@/stores/cart"
+import type { Product } from "@/types"
 
 export function Homepage() {
+  const { addItem } = useCartStore()
+
   // Mock featured products data
-  const featuredProducts = [
+  const featuredProducts: Product[] = [
     {
       id: "1",
       name: "Wireless Bluetooth Headphones",
+      description: "High-quality wireless headphones with noise cancellation and 30-hour battery life.",
       price: 79.99,
       discountPrice: 59.99,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
+      images: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop"],
+      category: "Electronics",
+      brand: "AudioTech",
       rating: 4.5,
       reviewCount: 128,
-      badge: "Best Seller"
+      inStock: true,
+      stockQuantity: 45,
+      sku: "AT-WBH-001",
+      tags: ["wireless", "bluetooth", "noise-canceling"],
+      createdAt: "2024-01-15T00:00:00Z",
+      updatedAt: "2024-01-15T00:00:00Z"
     },
     {
       id: "2", 
       name: "Smart Watch Series 8",
+      description: "Advanced smartwatch with health monitoring, GPS, and water resistance.",
       price: 299.99,
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop",
+      images: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop"],
+      category: "Electronics",
+      brand: "TechWear",
       rating: 4.8,
       reviewCount: 256,
-      badge: "New"
+      inStock: true,
+      stockQuantity: 23,
+      sku: "TW-SW8-001",
+      tags: ["smartwatch", "fitness", "gps"],
+      createdAt: "2024-01-20T00:00:00Z",
+      updatedAt: "2024-01-20T00:00:00Z"
     },
     {
       id: "3",
       name: "Premium Coffee Maker",
+      description: "Professional-grade coffee maker with programmable brewing and built-in grinder.",
       price: 149.99,
       discountPrice: 119.99,
-      image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop",
+      images: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop"],
+      category: "Home & Kitchen",
+      brand: "BrewMaster",
       rating: 4.3,
       reviewCount: 89,
-      badge: "Sale"
+      inStock: true,
+      stockQuantity: 12,
+      sku: "BM-PCM-001",
+      tags: ["coffee", "kitchen", "programmable"],
+      createdAt: "2024-01-10T00:00:00Z",
+      updatedAt: "2024-01-10T00:00:00Z"
     },
     {
       id: "4",
       name: "Ergonomic Office Chair",
+      description: "Comfortable ergonomic chair with lumbar support and adjustable height.",
       price: 199.99,
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
+      images: ["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop"],
+      category: "Furniture",
+      brand: "ComfortSeating",
       rating: 4.6,
       reviewCount: 67,
+      inStock: true,
+      stockQuantity: 8,
+      sku: "CS-EOC-001",
+      tags: ["ergonomic", "office", "chair"],
+      createdAt: "2024-01-05T00:00:00Z",
+      updatedAt: "2024-01-05T00:00:00Z"
     }
   ]
+
+  const handleAddToCart = (product: Product) => {
+    addItem(product)
+  }
 
   return (
     <div className="space-y-12">
@@ -77,16 +118,24 @@ export function Homepage() {
               <CardHeader className="p-0">
                 <div className="relative">
                   <img 
-                    src={product.image} 
+                    src={product.images[0]} 
                     alt={product.name}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
-                  {product.badge && (
+                  {product.discountPrice && (
                     <Badge 
-                      variant={product.badge === "Sale" ? "destructive" : "default"}
+                      variant="destructive"
                       className="absolute top-2 left-2"
                     >
-                      {product.badge}
+                      Save ${(product.price - product.discountPrice).toFixed(2)}
+                    </Badge>
+                  )}
+                  {!product.discountPrice && (
+                    <Badge 
+                      variant="default"
+                      className="absolute top-2 left-2"
+                    >
+                      New
                     </Badge>
                   )}
                 </div>
@@ -116,7 +165,11 @@ export function Homepage() {
                 </div>
               </CardContent>
               <CardFooter className="p-4 pt-0">
-                <Button className="w-full" size="sm">
+                <Button 
+                  className="w-full" 
+                  size="sm"
+                  onClick={() => handleAddToCart(product)}
+                >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Add to Cart
                 </Button>
